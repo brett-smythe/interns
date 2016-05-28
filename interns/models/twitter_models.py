@@ -77,3 +77,9 @@ class TweetUserMentions(Base):
     twitter_source = relationship('TwitterSource', back_populates='mentions')
 
 
+class PolledTimelineUsers(Base):
+    __tablename__ = 'polled_timeline_users'
+
+    id = Column(Integer, primary_key=True)
+    user_name = Column(String)
+
