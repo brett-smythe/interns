@@ -12,6 +12,32 @@ from interns.models import models
 from interns.models import twitter_models
 
 
+def get_tracked_twitter_tl_users():
+    """
+    Pull the list of twitter users that is being polled by the interns
+    """
+    tracked_users = []
+    with GetDBSession() as db_session:
+        tracked_users = db_session.query(
+            twitter_models.PolledTimelineUsers
+        ).all()
+    return tracked_users
+
+
+def add_tracked_twitter_tl_user(username):
+    """
+    Add a twitter user to be tracked to the databse
+
+    Arguments:
+    username -- Twitter username/screen_name to be added. For example to add
+    username '@NASA' to be polled: add_tracked_twitter_tl_user('NASA')
+    """
+    new_user = twitter_models.PolledTimelineUsers(user_name=username)
+    with GetDBSession() as db_session:
+        db_session.add(new_user)
+        db_session.commit()
+
+
 def is_twitter_user_in_interns(screen_name):
     """
     Checks to see if a twitter user exists within the database. Returns True
@@ -25,7 +51,7 @@ def is_twitter_user_in_interns(screen_name):
     """
     with GetDBSession() as db_session:
         distinct_screen_names = db_session.query(
-            distinct(TwitterSource.tweet_origin_screen_name)
+            distinct(twitter_models.TwitterSource.tweet_origin_screen_name)
         )
     return screen_name in distinct_screen_names
 

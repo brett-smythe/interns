@@ -1,0 +1,57 @@
+- Get three pieces of hardware to deploy on
+    - At least one of them should be capable of hosting a database
+- Setup a github account
+- On the primary machine install ansible
+- On your primary machine install jenkins
+- On your primary machine install postgres
+- Create a postgres user to allow database access (in my case user: eleanor and database name: eleanor)
+    - Set pg_hba.conf and postgresql.conf to allow remote access
+        - On my machine (Debian 8, apt install) it was located at /etc/postgresql/9.4/main/
+        - added to pg_hba.conf: host     all             all            your.ip.here.0/24          md5
+        - added to postgresql.conf: listen_addresses = '*'
+
+
+- Setup anisble/jenkins to install and configure services 
+
+
+
+
+Current TODO:
+    - ***** PACKAGING INTERNS *****
+        - Booooooooo
+    - When at a further along state in services package them and change directory structure
+    - Create scheduler that can deal with rate limits, errors, and appropriate worker assignment based on the afformentioned
+        - eleanor keeps track of the users and sources being polled
+        - oseary asks eleanor for the sources/users and tells the interns what to do
+            - interns feed data back to eleanor
+            - interns feed back to oseary if they hit rate limits
+                - oseary then schedules new jobs appropriately based on these limits
+                    - Using timestamps?
+                        - Could be start job no earlier than TIMESTAMP
+                        - If the queue is empty/low then the jobs will be processed at the correct time
+                            - This will cause some workers to sleep temporarily
+                        - If the queue is really full then it ensures that the job will be done as soon as it hits a worker
+                        - How to deal with the former?
+                            - Oseary could order jobs based on likelyhood of hitting limits
+                            - If a worker is/or would be waiting a long for a job it could just put it back in the queue
+                            - Why not both?
+                        
+                    
+    - Automated polling of User's tweets
+    - Ability to add Users to poll
+    - Determine at what level to handle exceptions within the application
+
+
+
+
+
+Oseary
+    - Needs to know:
+        - What jobs it's going to queue
+            - What jobs are associated with what limits
+            - How long to delay jobs once the limit has been reached
+        - When limits have been reached
+    - How will it know?
+        - What jobs it's going to queue
+            - 
+            - 
