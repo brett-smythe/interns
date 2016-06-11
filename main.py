@@ -1,4 +1,5 @@
-from interns.clients.twitter import client as twitter_client
+from clients.twitter import client as twitter_client
 
-twitter_client.get_new_user_timeline_tweets('NASA')
+def test():
+    twitter_client.get_new_user_timeline_tweets('NASA')
 
