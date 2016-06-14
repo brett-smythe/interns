@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 from codecs import open as cod_open
 
 
-with cod_open('README.md'), encoding='utf-8') as inf:
+with cod_open('README.md', encoding='utf-8') as inf:
     long_description = inf.read()
 
 reqs = []
