@@ -24,11 +24,11 @@ setup(
     long_description=long_description,
     author='Brett Smythe',
     author_email='smythebrett@gmail.com',
-    packages=find_packages('interns'),
+    packages=find_packages(),
     install_requires=reqs,
     entry_points={
         'console_scripts': [
-            'interns=main:test'
+            'interns=interns.main:test'
         ]
     }
 )
