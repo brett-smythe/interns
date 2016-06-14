@@ -63,7 +63,14 @@ def get_new_user_timeline_tweets(screen_name):
     if not interns_settings.debug:
         for tweet in timeline_tweets:
             # Handle exceptions above this?
-            twitter_utils.insert_tweet_data(tweet)
+            try:
+                twitter_utils.insert_tweet_data(tweet)
+            except Exception as e:
+                print 'Error: {0}'.format(e)
+                exc_type, exc_value, exc_tb = sys.exc_info()
+                traceback.print_exception(exc_type, exc_value, exc_tb)
+                continue
+
 
 #            try:
 #                twitter_utils.insert_tweet_data(tweet)

@@ -71,7 +71,8 @@ def last_twitter_user_entry_id(screen_name):
             return None
 
 
-def insert_user_mentions(tweet, tweet_model, session):
+#def insert_user_mentions(tweet, tweet_model, session):
+def insert_user_mentions(tweet):
     """
     Adds user mentions from a tweet to the database
 
@@ -81,15 +82,18 @@ def insert_user_mentions(tweet, tweet_model, session):
     database session but not yet commited.
     session -- The active database session.
     """
+    user_mentions = []
     for user in tweet.user_mentions:
         UserMention = twitter_models.TweetUserMentions(
-            twitter_source=tweet_model,
+#            twitter_source=tweet_model,
             user_name=user.screen_name
         )
-        session.add(UserMention)
+        user_mentions.append(UserMention)
+    return user_mentions
+#        session.add(UserMention)
 
 
-def insert_hashtags(tweet, tweet_model, session):
+def insert_hashtags(tweet):
     """
     Adds hashtags from a tweet to the database
 
@@ -99,15 +103,16 @@ def insert_hashtags(tweet, tweet_model, session):
     database session but not yet commited.
     session -- The active database session.
     """
-    for hashtag in tweet.hastags:
-        TweetHashtags = twitter_models.TweetHashtags(
-            twitter_source=tweet_model,
+    hashtags = []
+    for hashtag in tweet.hashtags:
+        TweetHashtag = twitter_models.TweetHashtags(
             hashtag=hashtag.text
         )
-        session.add(TweetHashtags)
+        hashtags.append(TweetHashtag)
+    return hashtags
 
 
-def insert_urls(tweet, tweet_model, session):
+def insert_urls(tweet):
     """
     Adds URLs from a tweet to the database
 
@@ -117,12 +122,13 @@ def insert_urls(tweet, tweet_model, session):
     database session but not yet commited.
     session -- The active database session.
     """
+    urls = []
     for url in tweet.urls:
         TweetURL = twitter_models.TweetURLs(
-            twitter_source=tweet_model,
             url=url.expanded_url
         )
-        session.add(TweetURL)
+        urls.append(TweetURL)
+    return urls
 
 
 def insert_tweet_data(tweet):
@@ -148,7 +154,6 @@ def insert_tweet_data(tweet):
             return None
 
         try:
-
             with GetDBSession() as db_session:
                 OriginalTweet = db_session.query(models.TextSource).get(
                     original_tweet_id
@@ -167,23 +172,26 @@ def insert_tweet_data(tweet):
                     db_session
                 )
                 TweetModel = twitter_models.TwitterSource(
-                    text_source=TweetTextModel,
                     retweet_source_id=OriginalTweet.id,
                     tweeter_user_name=tweet.user.screen_name,
                     tweet_id=tweet.id,
                     is_retweet=True
                 )
+                TweetTextModel.twitter_source = TweetModel
                 db_session.commit()
         except IntegrityError as e:
             if 'duplicate key value' in e.message:
                 # This tweet has already been captured so:
+                sys.stdout.write('Duplicate key, passing\n')
                 return None
             else:
                 # TODO logging
+                sys.stdout.write('Other error: {0}\n'.format(e))
                 return None
         except Exception as e:
             # Bad stuff happened
             # TODO: Definitely logging here
+            sys.stdout.write('Other error: {0}\n'.format(e))
             return None
 
         # We don't store the urls/hashtags/mentions as it is all done within
@@ -204,38 +212,48 @@ def insert_tweet_data(tweet):
                 tweet.created_at,
                 db_session
             )
-
             TweetModel = twitter_models.TwitterSource(
-                text_source=TweetTextModel,
                 tweeter_user_name=tweet.user.screen_name,
                 tweet_id=tweet.id,
                 is_retweet=False
             )
+            TweetTextModel.twitter_source = TweetModel
+            if tweet.user_mentions != []:
+#                    insert_user_mentions(tweet, TweetModel, db_session)
+                user_mentions = insert_user_mentions(tweet)
+                TweetModel.mentions = user_mentions
+
+            if tweet.hashtags != []:
+#                    insert_hashtags(tweet, TweetModel, db_session)
+                hashtags = insert_hashtags(tweet)
+                ###### TODO REMOVE ######
+#                import pdb
+#                pdb.set_trace()
+                #########################
+                TweetModel.hashtags = hashtags
+
+            if tweet.urls != []:
+#                    insert_urls(tweet, TweetModel, db_session)
+                urls = insert_urls(tweet)
+                TweetModel.urls = urls
             try:
-                db_session.add(TweetModel)
-                db_session.flush()
-                tweet_model_id = TweetModel.id
-
-                if tweet.user_mentions != []:
-                    insert_user_mentions(tweet, TweetModel, db_session)
-
-                if tweet.hashtags != []:
-                    insert_hashtags(tweet, TweetModel, db_session)
-
-                if tweet.urls != []:
-                    insert_urls(tweet, TweetModel, db_session)
-
+#                db_session.add(TweetModel)
+#                db_session.flush()
+#                tweet_model_id = TweetModel.id
                 db_session.commit()
             except IntegrityError as e:
                 if 'duplicate key value' in e.message:
+                    sys.stdout.write('Duplicate key, passing\n')
                     # This tweet has already been captured so:
                     return None
                 else:
                     # TODO logging
+                    sys.stdout.write('Other error: {0}\n'.format(e))
                     return None
             except Exception as e:
                 # Bad stuff happened
                 # TODO: Definitely logging here
+                sys.stdout.write('Other error: {0}\n'.format(e))
                 return None
-        return tweet_model_id
+        #return tweet_model_id
 
