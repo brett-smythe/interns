@@ -17,8 +17,6 @@
 
 
 Current TODO:
-    - ***** PACKAGING INTERNS *****
-        - Booooooooo
     - When at a further along state in services package them and change directory structure
     - Create scheduler that can deal with rate limits, errors, and appropriate worker assignment based on the afformentioned
         - eleanor keeps track of the users and sources being polled
