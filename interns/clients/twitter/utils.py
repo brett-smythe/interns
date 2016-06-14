@@ -24,7 +24,7 @@ def get_tracked_twitter_tl_users():
     return tracked_users
 
 
-def add_tracked_twitter_tl_user(username):
+def begin_tracking_twitter_user(username):
     """
     Add a twitter user to be tracked to the databse
 
@@ -132,6 +132,7 @@ def insert_urls(tweet):
 
 
 def insert_tweet_data(tweet):
+    # TODO break this method up. Far too big
     """
     Adds a tweet to the database and returns the newly created tweet model id
     or None if the tweet has already been captured
