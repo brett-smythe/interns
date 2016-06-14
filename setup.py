@@ -2,13 +2,9 @@
 
 from setuptools import setup, find_packages
 from codecs import open as cod_open
-from os import path
-
-path_to_here = path.abspath(path.dirname(__file__))
 
 
-# Get description from README
-with cod_open(path.join(path_to_here, 'README.md'), encoding='utf-8') as inf:
+with cod_open('README.md'), encoding='utf-8') as inf:
     long_description = inf.read()
 
 reqs = []
