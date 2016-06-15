@@ -1,6 +1,7 @@
 from interns.settings import interns_settings
 from interns.creds import config as creds_config
-from interns.clients.twitter import utils as twitter_utils
+from interns.clients.twitter import (utils as twitter_utils,
+    client as twitter_client)
 
 from celery import Celery
 
@@ -23,4 +24,9 @@ def add(x, y):
 @interns.task
 def track_twitter_user(username):
    twitter_utils.begin_tracking_twitter_user(username)
+
+
+@interns.task
+def get_user_timeline_tweets(username):
+   twitter_client.get_new_user_timeline_tweets(username) 
 

@@ -18,9 +18,11 @@ def get_tracked_twitter_tl_users():
     """
     tracked_users = []
     with GetDBSession() as db_session:
-        tracked_users = db_session.query(
+        tracked_users_query = db_session.query(
             twitter_models.PolledTimelineUsers
-        ).all()
+        )
+        for user in tracked_users_query:
+            tracked_users.append(user.user_name)
     return tracked_users
 
 
