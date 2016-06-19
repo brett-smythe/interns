@@ -15,7 +15,6 @@ pickleshare==0.7.2
 psycopg2==2.6.1
 ptyprocess==0.5.1
 python-dateutil==2.5.3
-python-twitter==2.2
 pytz==2016.4
 requests==2.10.0
 requests-oauthlib==0.6.1
