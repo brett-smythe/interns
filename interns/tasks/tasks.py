@@ -18,10 +18,16 @@ app = Celery(
 
 @app.task
 def track_twitter_user(username):
-   twitter_utils.begin_tracking_twitter_user(username)
+    twitter_utils.begin_tracking_twitter_user(username)
+    if not twitter_utils.is_twitter_user_in_interns(username):
+        get_user_timeline_tweets(username)
 
 
 @app.task
 def get_user_timeline_tweets(username):
-   twitter_client.get_new_user_timeline_tweets(username) 
+    last_tweet_id = twitter_utils.last_twitter_user_entry_id(username)
+    if last_tweet_id:
+        twitter_client.get_new_user_timeline_tweets(username, last_tweet_id)
+    else:
+        twitter_client.get_new_user_timeline_tweets(username)
 
