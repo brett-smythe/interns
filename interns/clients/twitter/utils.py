@@ -51,11 +51,14 @@ def is_twitter_user_in_interns(screen_name):
     Arguments:
     screen_name -- Twitter user_name/screen_name to check for.
     """
+    screen_names = []
     with GetDBSession() as db_session:
         distinct_screen_names = db_session.query(
-            distinct(twitter_models.TwitterSource.tweet_origin_screen_name)
+            distinct(twitter_models.TwitterSource.tweeter_user_name)
         )
-    return screen_name in distinct_screen_names
+    for sn in distinct_screen_names:
+        screen_names.append(sn[0])
+    return screen_name in screen_names
 
 
 def last_twitter_user_entry_id(screen_name):
@@ -68,7 +71,17 @@ def last_twitter_user_entry_id(screen_name):
     """
     with GetDBSession() as db_session:
         if is_twitter_user_in_interns(screen_name):
-            return db_session.query(desc(TwitterSource.tweet_id)).first()
+            # Check to make sure it's not a retweet
+            # change this to filter against if retweet
+            query = db_session.query(
+                twitter_models.TwitterSource.tweet_id
+            ).filter_by(
+                tweeter_user_name=screen_name
+            ).order_by(desc(twitter_models.TwitterSource.tweet_id)).first()[0]
+            return query
+#            return db_session.query(
+#                    desc(twitter_models.TwitterSource.tweet_id)
+#                ).first()
         else:
             return None
 

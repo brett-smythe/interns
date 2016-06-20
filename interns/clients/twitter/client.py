@@ -7,7 +7,6 @@ from interns.creds import config as creds_config
 
 from aquatic_twitter import client as twitter_client
 
-#from connection import twitter_api
 
 # TODO move this into settings
 write_to_memcache = True
