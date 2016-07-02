@@ -4,6 +4,10 @@ from dateutil.parser import parse as date_parse
 
 from interns.clients.db_client import GetDBSession
 from interns.models import models
+from interns.utils import get_logger
+
+
+logger = get_logger(__name__)
 
 
 def insert_text_data(data_source, source_url, text, time_posted, session):
@@ -22,6 +26,8 @@ def insert_text_data(data_source, source_url, text, time_posted, session):
     if not isinstance(time_posted, datetime):
         time_posted = date_parse(time_posted)
 
+    logger.debug('Inserting text data into postgres')
+    
     TextModel = models.TextSource(
         source_key=data_source,
         source_url=source_url,

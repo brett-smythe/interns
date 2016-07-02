@@ -17,6 +17,11 @@
 
 
 Current TODO:
+    - Logging format:
+        - UTC
+        - date time - service_name module.method - LOGLEVEL - log_message
+        - logging in each service's dir in ./logs/year/month/day/
+        - rotated daily
     - When at a further along state in services package them and change directory structure
     - Create scheduler that can deal with rate limits, errors, and appropriate worker assignment based on the afformentioned
         - eleanor keeps track of the users and sources being polled

@@ -10,12 +10,15 @@ from interns.clients.db_client import GetDBSession
 
 from interns.models import models
 from interns.models import twitter_models
+from interns.utils import get_logger
 
+logger = get_logger(__name__)
 
 def get_tracked_twitter_tl_users():
     """
     Pull the list of twitter users that is being polled by the interns
     """
+    logger.debug('Getting listing of tracked twitter users')
     tracked_users = []
     with GetDBSession() as db_session:
         tracked_users_query = db_session.query(
@@ -38,6 +41,7 @@ def begin_tracking_twitter_user(username):
     with GetDBSession() as db_session:
         db_session.add(new_user)
         db_session.commit()
+    logger.debug('Adding twitter user {0} to be tracked'.format(username))
 
 
 def is_twitter_user_in_interns(screen_name):
@@ -58,6 +62,12 @@ def is_twitter_user_in_interns(screen_name):
         )
     for sn in distinct_screen_names:
         screen_names.append(sn[0])
+    logger.debug(
+        (
+            'Twitter username {0} is currently being '
+            'tracked by interns is: {1}'
+        ).format(screen_name, screen_name in screen_names)
+    )
     return screen_name in screen_names
 
 
@@ -78,15 +88,16 @@ def last_twitter_user_entry_id(screen_name):
             ).filter_by(
                 tweeter_user_name=screen_name
             ).order_by(desc(twitter_models.TwitterSource.tweet_id)).first()[0]
+            logger.debug(
+                'Last tweet id from twitter user {0} is {1}'.format(
+                    screen_name, query
+                )
+            )
             return query
-#            return db_session.query(
-#                    desc(twitter_models.TwitterSource.tweet_id)
-#                ).first()
         else:
             return None
 
 
-#def insert_user_mentions(tweet, tweet_model, session):
 def insert_user_mentions(tweet):
     """
     Adds user mentions from a tweet to the database
@@ -97,15 +108,14 @@ def insert_user_mentions(tweet):
     database session but not yet commited.
     session -- The active database session.
     """
+    logger.debug('Adding user mentions from a tweet')
     user_mentions = []
     for user in tweet.user_mentions:
         UserMention = twitter_models.TweetUserMentions(
-#            twitter_source=tweet_model,
             user_name=user.screen_name
         )
         user_mentions.append(UserMention)
     return user_mentions
-#        session.add(UserMention)
 
 
 def insert_hashtags(tweet):
@@ -118,6 +128,7 @@ def insert_hashtags(tweet):
     database session but not yet commited.
     session -- The active database session.
     """
+    logger.debug('Inserting hastags from a tweet')
     hashtags = []
     for hashtag in tweet.hashtags:
         TweetHashtag = twitter_models.TweetHashtags(
@@ -137,6 +148,7 @@ def insert_urls(tweet):
     database session but not yet commited.
     session -- The active database session.
     """
+    logger.debug('Inserting urls from a tweet')
     urls = []
     for url in tweet.urls:
         TweetURL = twitter_models.TweetURLs(
@@ -149,14 +161,14 @@ def insert_urls(tweet):
 def insert_tweet_data(tweet):
     # TODO break this method up. Far too big
     """
-    Adds a tweet to the database and returns the newly created tweet model id
-    or None if the tweet has already been captured
+    Adds a tweet to the database 
 
     Arguments:
     tweet -- The tweet object pulled from the twitter library. Some (very)
     limited documentation is located here:
     https://python-twitter.readthedocs.io/en/latest/twitter.html#twitter.models.Status
     """
+    logger.debug('Inserting tweet data')
     base_twitter_url = 'https://twitter.com/{0}/status/{1}'
     # If this is a retweet we don't want to store the entry twice (once under
     # the retweeter and then once again under the original tweeter)
@@ -198,16 +210,26 @@ def insert_tweet_data(tweet):
         except IntegrityError as e:
             if 'duplicate key value' in e.message:
                 # This tweet has already been captured so:
-                sys.stdout.write('Duplicate key, passing\n')
+                logger.info(
+                    'Duplicate tweet is already in the database, skipping'
+                )
                 return None
             else:
-                # TODO logging
-                sys.stdout.write('Other error: {0}\n'.format(e))
+                logger.critical(
+                    (
+                        'A database error occurred while attempting '
+                        'to insert tweet {0}'
+                    ).format(e)
+                )
                 return None
         except Exception as e:
             # Bad stuff happened
-            # TODO: Definitely logging here
-            sys.stdout.write('Other error: {0}\n'.format(e))
+            logger.critical(
+                (
+                    'An error has occurred while inserting a tweet into the '
+                    'database {0}'
+                ).format(e)
+            )
             return None
 
         # We don't store the urls/hashtags/mentions as it is all done within
@@ -235,41 +257,40 @@ def insert_tweet_data(tweet):
             )
             TweetTextModel.twitter_source = TweetModel
             if tweet.user_mentions != []:
-#                    insert_user_mentions(tweet, TweetModel, db_session)
                 user_mentions = insert_user_mentions(tweet)
                 TweetModel.mentions = user_mentions
 
             if tweet.hashtags != []:
-#                    insert_hashtags(tweet, TweetModel, db_session)
                 hashtags = insert_hashtags(tweet)
-                ###### TODO REMOVE ######
-#                import pdb
-#                pdb.set_trace()
-                #########################
                 TweetModel.hashtags = hashtags
 
             if tweet.urls != []:
-#                    insert_urls(tweet, TweetModel, db_session)
                 urls = insert_urls(tweet)
                 TweetModel.urls = urls
             try:
-#                db_session.add(TweetModel)
-#                db_session.flush()
-#                tweet_model_id = TweetModel.id
                 db_session.commit()
             except IntegrityError as e:
                 if 'duplicate key value' in e.message:
-                    sys.stdout.write('Duplicate key, passing\n')
                     # This tweet has already been captured so:
+                    logger.info(
+                        'Duplicate tweet is already in the database, skipping'
+                    )
                     return None
                 else:
-                    # TODO logging
-                    sys.stdout.write('Other error: {0}\n'.format(e))
+                    logger.critical(
+                        (
+                            'A database error occurred while attempting '
+                            'to insert tweet {0}'
+                        ).format(e)
+                    )
                     return None
             except Exception as e:
                 # Bad stuff happened
-                # TODO: Definitely logging here
-                sys.stdout.write('Other error: {0}\n'.format(e))
+                logger.critical(
+                    (
+                        'An error has occurred while inserting a tweet into the '
+                        'database {0}'
+                    ).format(e)
+                )
                 return None
-        #return tweet_model_id
 

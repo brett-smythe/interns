@@ -66,3 +66,6 @@ interns/creds/
 
 #Ignore swap files
 *.swp
+
+# Ignore logs
+interns/logs/*
