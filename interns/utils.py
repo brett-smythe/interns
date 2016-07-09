@@ -12,7 +12,8 @@ def get_logger(module_name):
     and using time.gmtime.
     """
     here = os.path.abspath(os.path.dirname(__file__))
-    logging_conf_path = '{0}/{1}'.format(here, 'settings/logging.conf')
+    #logging_conf_path = '{0}/{1}'.format(here, 'settings/logging.conf')
+    logging_conf_path = '{0}/{1}'.format(here, 'settings/logging_conf')
     logging.config.fileConfig(logging_conf_path)
     logging.Formatter.converter = time.gmtime
     logger = get_task_logger(module_name)
