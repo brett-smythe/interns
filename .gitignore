@@ -69,3 +69,6 @@ interns/creds/
 
 # Ignore logs
 interns/logs/*
+
+# Ignore deb build
+debian/*

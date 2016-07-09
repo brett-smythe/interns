@@ -1,4 +1,4 @@
-debug = False
+debug = True
 
 #rabbitmq_host = 'localhost'
 rabbitmq_host = '192.168.2.104'

@@ -20,11 +20,14 @@ setup(
     long_description=long_description,
     author='Brett Smythe',
     author_email='smythebrett@gmail.com',
+    maintainer='Brett Smythe',
+    maintainer_email='smythebrett@gmail.com',
+    url='https://github.com/brett-smythe/interns',
     packages=find_packages(),
     install_requires=reqs,
     entry_points={
         'console_scripts': [
-            'interns=interns.main:test'
+            'interns = interns.main:test'
         ]
     }
 )
