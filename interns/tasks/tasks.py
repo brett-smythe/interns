@@ -11,8 +11,6 @@ from interns.utils import get_logger
 logger = get_logger(__name__)
 #logger = get_task_logger(__name__)
 
-#TODO REMOVE ME
-print 'Module name is: {0}'.format(__name__)
 
 app = Celery('tasks')
 app.config_from_object(celeryconfig)
