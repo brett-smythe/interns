@@ -15,7 +15,7 @@ with open('requirements.txt') as inf:
 
 setup(
     name='interns',
-    version='0.1.8',
+    version='0.1.9',
     description='Worker to gather text sources for related projects',
     long_description=long_description,
     author='Brett Smythe',
