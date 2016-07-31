@@ -1,21 +1,20 @@
 from celery import Celery
 
-from celery.utils.log import get_task_logger
 
 from interns.settings import interns_settings, celeryconfig
 from interns.creds import config as creds_config
 from interns.clients.twitter import (utils as twitter_utils,
     client as twitter_client)
-from interns.utils import get_logger
+from interns.utils import get_celery_logger
 
-logger = get_logger(__name__)
-#logger = get_task_logger(__name__)
+logger = get_celery_logger(__name__)
 
 
 app = Celery('tasks')
 app.config_from_object(celeryconfig)
 
 
+# This may no longer be necessary with eleanor owning db access
 @app.task
 def track_twitter_user(username):
     """
