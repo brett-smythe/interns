@@ -1,5 +1,6 @@
 """Process for scheduling Twitter polling jobs for interns"""
 import time
+import Queue
 
 from interns.tasks import tasks as intern_tasks
 
@@ -32,7 +33,10 @@ class TwitterJobs(object):
 
         while self.running:
             if not self.job_queue.empty():
-                poison_check = self.job_queue.get_nowait()
+                try:
+                    poison_check = self.job_queue.get_nowait()
+                except Queue.Empty:
+                    poison_check = None
                 if poison_check == interns_settings.process_poison:
                     self.logger.info(
                         __name__,
