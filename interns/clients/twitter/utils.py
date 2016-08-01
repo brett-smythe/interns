@@ -73,7 +73,7 @@ def insert_tweet_data(tweet):
     """
     logger.debug('Making call to eleanor to add tweet data')
     base_twitter_url = 'https://twitter.com/{0}/status/{1}'
-    source_url = base_twitter_url.format(tweet.user.screen_name, tweet.id)
+    source_url = base_twitter_url.format(tweet.user.screen_name, tweet.id_str)
 
     user_mentions = [user.screen_name for user in tweet.user_mentions]
     hashtags = [hashtag.text for hashtag in tweet.hashtags]
@@ -85,10 +85,10 @@ def insert_tweet_data(tweet):
         is_retweet = True
         retweet_url = base_twitter_url.format(
             retweet.user.screen_name,
-            tweet.id
+            tweet.id_str
         )
-        retweet_data["user_name"] = retweet.screen_name
-        retweet_data["tweet_id"] = str(retweet.id)
+        retweet_data["user_name"] = retweet.user.screen_name
+        retweet_data["tweet_id"] = retweet.id_str
         retweet_data["url"] = retweet_url
         retweet_data["tweet_text"] = retweet.text
         retweet_data["tweet_created"] = retweet.created_at
@@ -107,7 +107,7 @@ def insert_tweet_data(tweet):
 
     tweet_data = {
         "user_name": tweet.user.screen_name,
-        "tweet_id": str(tweet.id),
+        "tweet_id": tweet.id_str,
         "url": source_url,
         "tweet_text": tweet.text,
         "tweet_created": tweet.created_at,

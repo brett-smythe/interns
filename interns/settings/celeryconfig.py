@@ -7,3 +7,4 @@ BROKER_URL = 'amqp://{0}:{1}@{2}:{3}//'.format(
     creds.rabbitmq_host,
     creds.rabbitmq_port
 )
+CELERY_IMPORTS = ['interns.tasks.tasks']
