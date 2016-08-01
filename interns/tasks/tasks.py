@@ -1,10 +1,11 @@
+"""Celery tasks for inters workers"""
 from celery import Celery
 
-
-from interns.settings import interns_settings, celeryconfig
-from interns.creds import config as creds_config
-from interns.clients.twitter import (utils as twitter_utils,
-    client as twitter_client)
+from interns.settings import celeryconfig
+from interns.clients.twitter import (
+    utils as twitter_utils,
+    client as twitter_client
+)
 from interns.utils import get_celery_logger
 
 logger = get_celery_logger(__name__)
@@ -20,7 +21,7 @@ def track_twitter_user(username):
     """
     When given a username start polling their timeline for tweet data
     """
-    logger.info('Adding twitter user {0} to tracked users'.format(username))
+    logger.info('Adding twitter user %s to tracked users', username)
     twitter_utils.begin_tracking_twitter_user(username)
     if not twitter_utils.is_twitter_user_in_interns(username):
         get_user_timeline_tweets(username)
@@ -31,9 +32,7 @@ def get_user_timeline_tweets(username):
     """
     Pull the tweets from username's timeline
     """
-    logger.info(
-        'Polling twitter user {0} for timeline tweets'.format(username)
-    )
+    logger.info('Polling twitter user %s for timeline tweets', username)
     last_tweet_id = twitter_utils.last_twitter_user_entry_id(username)
     if last_tweet_id:
         twitter_client.get_user_timeline_tweets(username, last_tweet_id)

@@ -4,10 +4,8 @@ import datetime
 from pymemcache.client.base import Client as MemCacheClient
 
 from interns.settings import interns_settings
-from interns.creds import config as creds_config
 from interns import utils
-
-from aquatic_twitter import client as twitter_client
+from interns.clients.twitter.client import twitterClient
 
 from eleanor_client.endpoints import twitter as eleanor_twitter
 
@@ -36,13 +34,6 @@ class TwitterLimits(object):
 
         self.memcacheClient = MemCacheClient(
             (interns_settings.memcache_host, interns_settings.memcache_port)
-        )
-
-        self.twitterClient = twitter_client.AquaticTwitter(
-            creds_config.twitter_consumer_key,
-            creds_config.twitter_consumer_secret,
-            creds_config.twitter_access_token_key,
-            creds_config.twitter_access_token_secret
         )
 
         self.timeline_rate_reserve = timeline_rate_reserve
@@ -89,7 +80,7 @@ class TwitterLimits(object):
 
         if not update_values_valid:
             update_vals = (
-                self.twitterClient.get_user_timeline_rate_limit()
+                twitterClient.get_user_timeline_rate_limit()
             )
             self.tl_total_reqs = update_vals.limit
             self.tl_reqs_left = update_vals.remaining

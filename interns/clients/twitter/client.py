@@ -4,6 +4,7 @@ import sys
 from interns.settings import interns_settings
 from interns.clients.twitter import utils as twitter_utils
 from interns import utils
+from interns.creds import creds
 
 from aquatic_twitter import client as twitter_client
 
@@ -11,20 +12,13 @@ write_to_memcache = True
 if interns_settings.debug:
     write_to_memcache = False
 
-try:
-    # pylint: disable=ungrouped-imports
-    from interns.creds import config as creds_config
-    twitterClient = twitter_client.AquaticTwitter(
-        creds_config.twitter_consumer_key,
-        creds_config.twitter_consumer_secret,
-        creds_config.twitter_access_token_key,
-        creds_config.twitter_access_token_secret,
-        write_to_memcache
-    )
-except ImportError as e:
-    # No creds associated
-    creds_config = None
-    twitterClient = None
+twitterClient = twitter_client.AquaticTwitter(
+    creds.twitter_consumer_key,
+    creds.twitter_consumer_secret,
+    creds.twitter_access_token_key,
+    creds.twitter_access_token_secret,
+    write_to_memcache
+)
 
 
 logger = utils.get_logger(__name__)
