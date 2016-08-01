@@ -1,7 +1,6 @@
 """Setup for interns service"""
-
-from setuptools import setup, find_packages
 from codecs import open as cod_open
+from setuptools import setup, find_packages
 
 
 with cod_open('README.md', encoding='utf-8') as inf:
@@ -15,7 +14,7 @@ with open('requirements.txt') as inf:
 
 setup(
     name='interns',
-    version='0.2.3',
+    version='0.2.4',
     description='Worker to gather text sources for related projects',
     long_description=long_description,
     author='Brett Smythe',
