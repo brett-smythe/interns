@@ -13,7 +13,7 @@ from interns import utils
 logger = utils.get_logger(__name__)
 
 
-def run_service():
+def run_scheduler():
     """
     The main entry point for the interns scheduling service, starts and
     maintains all of the various timing jobs
@@ -41,4 +41,4 @@ def run_service():
 
 
 if __name__ == '__main__':
-    run_service()
+    run_scheduler()

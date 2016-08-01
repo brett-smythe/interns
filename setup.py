@@ -15,7 +15,7 @@ with open('requirements.txt') as inf:
 
 setup(
     name='interns',
-    version='0.2',
+    version='0.2.1',
     description='Worker to gather text sources for related projects',
     long_description=long_description,
     author='Brett Smythe',
@@ -27,7 +27,7 @@ setup(
     install_requires=reqs,
     entry_points={
         'console_scripts': [
-            'interns = interns.main:test'
+            'interns = interns.main:run_scheduler'
         ]
     }
 )
