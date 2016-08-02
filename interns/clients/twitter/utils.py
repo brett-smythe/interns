@@ -92,7 +92,7 @@ def insert_tweet_data(tweet):
         retweet_data["url"] = retweet_url
         retweet_data["tweet_text"] = retweet.text
         retweet_data["tweet_created"] = retweet.created_at
-        retweet_data["is_retweet"] = "False"
+        retweet_data["is_retweet"] = False
 
         user_mentions = [user.screen_name for user in retweet.user_mentions]
         retweet_data["user_mentions"] = user_mentions
@@ -111,7 +111,7 @@ def insert_tweet_data(tweet):
         "url": source_url,
         "tweet_text": tweet.text,
         "tweet_created": tweet.created_at,
-        "is_retweet": str(is_retweet),
+        "is_retweet": is_retweet,
         "user_mentions": user_mentions,
         "hashtags": hashtags,
         "tweet_urls": tweet_urls,
