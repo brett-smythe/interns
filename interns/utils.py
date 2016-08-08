@@ -9,14 +9,31 @@ import Queue
 from celery.utils.log import get_task_logger
 
 
-def get_logger(module_name):
-    """Get a logger with created with values from settings/logging.conf and
-    using time.gmtime
-    """
+def get_scheduler_logger(module_name):
+    """Get the scheduler logger using time.gmtime"""
     logger = logging.getLogger(module_name)
     logger.setLevel(logging.DEBUG)
     handler = logging.handlers.TimedRotatingFileHandler(
-        '/tmp/interns.log', 'midnight', 1, 0, 'utf-8', False, True
+        '/var/log/interns-scheduler/scheduler.log',
+        'midnight', 1, 0, 'utf-8', False, True
+    )
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    formatter.converter = time.gmtime
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
+    return logger
+
+
+def get_logger(module_name):
+    """Get a logger using time.gmtime"""
+    logger = logging.getLogger(module_name)
+    logger.setLevel(logging.DEBUG)
+    handler = logging.handlers.TimedRotatingFileHandler(
+        '/var/log/interns-service/tasks.log',
+        'midnight', 1, 0, 'utf-8', False, True
     )
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -29,10 +46,7 @@ def get_logger(module_name):
 
 
 def get_celery_logger(module_name):
-    """Get a celery logger with created with values from settings/logging.conf
-
-    and using time.gmtime.
-    """
+    """Get a celery logger using time.gmtime """
     logger = get_task_logger(module_name)
     add_timed_rotation_handler(logger)
     return logger

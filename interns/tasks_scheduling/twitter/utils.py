@@ -82,6 +82,7 @@ class TwitterLimits(object):
             update_vals = (
                 twitterClient.get_user_timeline_rate_limit()
             )
+            self.logger.info(__name__, 'Making twitter limits request')
             self.tl_total_reqs = update_vals.limit
             self.tl_reqs_left = update_vals.remaining
             self.tl_reqs_reset_time = update_vals.reset
