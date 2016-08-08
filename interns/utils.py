@@ -55,7 +55,7 @@ def get_celery_logger(module_name):
 def add_timed_rotation_handler(logger):
     """Takes the given logger object and adds a timed file rotation handler"""
     rotatingHandler = logging.handlers.TimedRotatingFileHandler(
-        '/tmp/interns.log', 'midnight', 1, 0,
+        '/var/log/interns-service/tasks.log', 'midnight', 1, 0,
         'utf-8', False, True
     )
     add_formatter_to_handler(rotatingHandler)
