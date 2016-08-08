@@ -32,12 +32,10 @@ def run_scheduler():
             # Some call to check if the service should keep running
             workerLogger.write_log_messages()
             sleep(0.5)
-        except KeyboardInterrupt:
-            print 'Shutting down interns scheduler'
-            break
-    logger.info('Shutting down interns scheduler')
-    twitter_jobs_queue.put(interns_settings.process_poison)
-    twitter_jobs_worker.join()
+        finally:
+            logger.info('Shutting down interns scheduler')
+            twitter_jobs_queue.put(interns_settings.process_poison)
+            twitter_jobs_worker.join()
 
 
 if __name__ == '__main__':
