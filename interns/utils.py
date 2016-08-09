@@ -15,7 +15,7 @@ def get_scheduler_logger(module_name):
     logger.setLevel(logging.DEBUG)
     handler = logging.handlers.TimedRotatingFileHandler(
         '/var/log/interns-scheduler/scheduler.log',
-        'midnight', 1, 0, 'utf-8', False, True
+        'H', 1, 0, 'utf-8', False, True
     )
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -33,7 +33,7 @@ def get_logger(module_name):
     logger.setLevel(logging.DEBUG)
     handler = logging.handlers.TimedRotatingFileHandler(
         '/var/log/interns-service/tasks.log',
-        'midnight', 1, 0, 'utf-8', False, True
+        'H', 1, 0, 'utf-8', False, True
     )
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
