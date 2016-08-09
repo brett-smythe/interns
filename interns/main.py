@@ -27,15 +27,15 @@ def run_scheduler():
         target=jobs.TwitterJobs, args=(twitter_jobs_queue, logging_queue)
     )
     twitter_jobs_worker.start()
-    while service_running:
-        try:
-            # Some call to check if the service should keep running
-            workerLogger.write_log_messages()
-            sleep(0.5)
-        finally:
-            logger.info('Shutting down interns scheduler')
-            twitter_jobs_queue.put(interns_settings.process_poison)
-            twitter_jobs_worker.join()
+    try:
+        while service_running:
+                # Some call to check if the service should keep running
+                workerLogger.write_log_messages()
+                sleep(0.5)
+    finally:
+        logger.info('Shutting down interns scheduler')
+        twitter_jobs_queue.put(interns_settings.process_poison)
+        twitter_jobs_worker.join()
 
 
 if __name__ == '__main__':
