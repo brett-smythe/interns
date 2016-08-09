@@ -26,6 +26,7 @@ def run_scheduler():
     twitter_jobs_worker = Process(
         target=jobs.TwitterJobs, args=(twitter_jobs_queue, logging_queue)
     )
+    twitter_jobs_worker.daemon = True
     twitter_jobs_worker.start()
     try:
         while service_running:
@@ -36,7 +37,6 @@ def run_scheduler():
         logger.info('Shutting down interns scheduler')
         twitter_jobs_queue.put(interns_settings.process_poison)
         twitter_jobs_worker.join()
-
 
 if __name__ == '__main__':
     run_scheduler()
