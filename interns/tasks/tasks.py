@@ -35,9 +35,11 @@ def get_user_timeline_tweets(username):
     logger.info('Polling twitter user %s for timeline tweets', username)
     last_tweet_id = twitter_utils.last_twitter_user_entry_id(username)
     if last_tweet_id:
-        twitter_client.get_user_timeline_tweets(username, last_tweet_id)
+        twitter_client.get_user_timeline_tweets(
+            username, last_tweet_id, logger
+        )
     else:
-        twitter_client.get_new_user_timeline_tweets(username)
+        twitter_client.get_new_user_timeline_tweets(username, logger)
 
 if __name__ == '__main__':
     app.start()
