@@ -21,7 +21,7 @@ twitterClient = twitter_client.AquaticTwitter(
 )
 
 
-logger = utils.get_logger(__name__)
+logger = utils.get_celery_logger(__name__)
 
 
 def get_new_user_timeline_tweets(screen_name):
