@@ -6,6 +6,10 @@ import time
 import subprocess
 import Queue
 
+from datetime import datetime, timedelta
+
+from dateutil import parser
+
 from celery.utils.log import get_task_logger
 
 
@@ -153,8 +157,9 @@ class MultiProcessLogger(object):
     This is accomplished with an instanced queue that is supplied to the class.
     This class should exist either in the main thread/process *or* be the only
     process writing to logs.
-
     """
+
+    twitter_timeline_request = 'TWITTER_TIMELINE_REQUEST '
 
     def __init__(self, queue, logger=None):
         """
@@ -163,6 +168,7 @@ class MultiProcessLogger(object):
         """
         self.queue = queue
         self.logger = logger
+        self.timeline_requests = []
 
     def put_message_in_queue(self, level, msg, logger_name):
         """Adds logging message to logging queue"""
@@ -203,6 +209,36 @@ class MultiProcessLogger(object):
         """
         self.put_message_in_queue('critical', msg, logger_name)
 
+    def log_twitter_timeline_request(self):
+        """Logs a request made to the twitter timeline API endpoint"""
+        self.put_message_in_queue(
+            'info',
+            self.twitter_timeline_request + datetime.utcnow().isoformat(),
+            'api_requests'
+        )
+
+    def add_timeline_request(self, tl_logline):
+        """Add a twitter timeline request for latter logging"""
+        timestamp_string = tl_logline.split()[-1]
+        log_datetime = parser.parse(timestamp_string)
+        self.timeline_requests.append(log_datetime)
+
+    def get_timeline_window_requests(self):
+        """Write a log line for the number of requests within
+        the last 15 minutes
+        """
+        valid_reqs = []
+        requests_window = timedelta(seconds=15 * 60)
+        for request_dt in self.timeline_requests:
+            old_req = request_dt > datetime.utcnow() - requests_window
+            if not old_req:
+                valid_reqs.append(request_dt)
+        self.timeline_requests = valid_reqs
+        log_message = 'twitter_timeline_requests_15_minutes {0}'.format(
+            len(valid_reqs)
+        )
+        return log_message
+
     def write_log_messages(self):
         """
         Check the queue for log messages and write them out using the supplied
@@ -218,13 +254,18 @@ class MultiProcessLogger(object):
             level = log_info[0]
             msg = log_info[1]
             self.logger.name = log_info[2]
-            if level == 'debug':
-                self.logger.debug(msg)
-            elif level == 'info':
+            if msg.startswith(self.twitter_timeline_request):
+                self.add_timeline_request(msg)
+                msg = self.get_timeline_window_requests()
                 self.logger.info(msg)
-            elif level == 'warning':
-                self.logger.warning(msg)
-            elif level == 'error':
-                self.logger.error(msg)
-            elif level == 'critical':
-                self.logger.critical(msg)
+            else:
+                if level == 'debug':
+                    self.logger.debug(msg)
+                elif level == 'info':
+                    self.logger.info(msg)
+                elif level == 'warning':
+                    self.logger.warning(msg)
+                elif level == 'error':
+                    self.logger.error(msg)
+                elif level == 'critical':
+                    self.logger.critical(msg)
