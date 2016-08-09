@@ -10,7 +10,7 @@ from interns.settings import interns_settings
 from interns import utils
 
 
-logger = utils.get_logger(__name__)
+logger = utils.get_scheduler_logger(__name__)
 
 
 def run_scheduler():
