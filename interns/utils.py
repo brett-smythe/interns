@@ -209,12 +209,12 @@ class MultiProcessLogger(object):
         """
         self.put_message_in_queue('critical', msg, logger_name)
 
-    def log_twitter_timeline_request(self):
+    def log_twitter_timeline_request(self, logger_name):
         """Logs a request made to the twitter timeline API endpoint"""
         self.put_message_in_queue(
             'info',
             self.twitter_timeline_request + datetime.utcnow().isoformat(),
-            'api_requests'
+            logger_name
         )
 
     def add_timeline_request(self, tl_logline):
