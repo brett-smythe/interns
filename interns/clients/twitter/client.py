@@ -29,7 +29,7 @@ def get_new_user_timeline_tweets(screen_name, logger):
         'Getting timeline tweets for twitter user: %s',
         screen_name
     )
-    logger.log_twitter_timeline_request(__name__)
+    logger.info('Making twitter timeline request')
     timeline_tweets = twitterClient.get_timeline_tweets(screen_name)
     if not interns_settings.debug:
         for tweet in timeline_tweets:
@@ -63,7 +63,7 @@ def get_user_timeline_tweets(screen_name, last_tweet_id, logger):
         screen_name,
         last_tweet_id
     )
-    logger.log_twitter_timeline_request(__name__)
+    logger.info('Making twitter timeline request')
     timeline_tweets = twitterClient.get_timeline_tweets_since_id(
         screen_name,
         last_tweet_id
