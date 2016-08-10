@@ -29,22 +29,31 @@ class TwitterJobs(object):
         self.twitter_user_index = 0
 
         if len(self.tracked_twitter_users) == 0:
+            self.logger.debug(
+                __name__, 'No tracked twitter users, shutting down'
+            )
             self.running = False
 
         while self.running:
-            if not self.job_queue.empty():
-                try:
-                    poison_check = self.job_queue.get_nowait()
-                except Queue.Empty:
-                    poison_check = None
-                if poison_check == interns_settings.process_poison:
-                    self.logger.info(
-                        __name__,
-                        'Shutting down twitter job scheduler'
-                    )
-                    self.running = False
-                    continue
-            self.execute_next_job()
+            try:
+                if not self.job_queue.empty():
+                    try:
+                        poison_check = self.job_queue.get_nowait()
+                    except Queue.Empty:
+                        poison_check = None
+                    if poison_check == interns_settings.process_poison:
+                        self.logger.info(
+                            __name__,
+                            'Shutting down twitter job scheduler'
+                        )
+                        self.running = False
+                        continue
+                self.execute_next_job()
+            except Exception as e:
+                self.logger.debug(
+                    __name__,
+                    'Interns twitter scheduler failed with: ' + e
+                )
 
     def update_tracked_users(self):
         """
