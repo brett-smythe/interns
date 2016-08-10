@@ -1,9 +1,10 @@
 """Utilities for interns twitter client"""
 from eleanor_client.endpoints import twitter as eleanor_twitter
 
-from interns.utils import get_logger
+from interns.utils import get_celery_logger
 
-logger = get_logger(__name__)
+# logger = get_logger(__name__)
+logger = get_celery_logger(__name__)
 
 
 def get_tracked_twitter_tl_users():
