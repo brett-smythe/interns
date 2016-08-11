@@ -18,9 +18,15 @@ class TwitterJobs(object):
         self.job_queue = job_queue
         self.running = True
 
-        self.twitterLimits = twitter_utils.TwitterLimits(
-            multi_proc_logger=self.logger
-        )
+        try:
+            self.twitterLimits = twitter_utils.TwitterLimits(
+                multi_proc_logger=self.logger
+            )
+        except Exception as e:
+            self.logger.error(
+                __name__,
+                'Twitter limits update failed with error: ' + e
+            )
         sleep_secs = self.twitterLimits.get_sleep_between_jobs()
         self.last_execution_time = time.time() - sleep_secs
         self.tracked_twitter_users = (
@@ -50,7 +56,7 @@ class TwitterJobs(object):
                         continue
                 self.execute_next_job()
             except Exception as e:
-                self.logger.debug(
+                self.logger.error(
                     __name__,
                     'Interns twitter scheduler failed with: ' + e
                 )
