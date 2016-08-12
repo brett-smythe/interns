@@ -79,6 +79,7 @@ class TwitterLimits(object):
         )
 
         if not update_values_valid:
+            self.logger.debug(__name__, 'Making twitter API limits call')
             update_vals = (
                 twitterClient.get_user_timeline_rate_limit()
             )
@@ -86,6 +87,11 @@ class TwitterLimits(object):
             self.tl_total_reqs = update_vals.limit
             self.tl_reqs_left = update_vals.remaining
             self.tl_reqs_reset_time = update_vals.reset
+        else:
+            self.logger.debug(
+                __name__,
+                'Using twitter API limits from memcache'
+            )
 
     def get_sleep_between_jobs(self):
         """

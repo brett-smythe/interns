@@ -76,7 +76,9 @@ class TwitterJobs(object):
         """
         self.logger.info(
             __name__,
-            u'Pulling timeline tweets for username {0}'.format(username)
+            'Queueing job get timeline tweets for username {0}'.format(
+                username
+            )
         )
         intern_tasks.get_user_timeline_tweets.delay(username)
 
