@@ -74,7 +74,7 @@ class TwitterLimits(object):
 
         update_values_valid = (
             self.tl_total_reqs and
-            self.tl_reqs_left and
+            (self.tl_reqs_left is not None) and
             self.tl_reqs_reset_time
         )
 
@@ -117,7 +117,10 @@ class TwitterLimits(object):
                 buffered_tl_reqs_left
             )
         )
-        sleep_time = secs_until_reset / buffered_tl_reqs_left
+        if buffered_tl_reqs_left <= 0:
+            sleep_time = secs_until_reset
+        else:
+            sleep_time = secs_until_reset / buffered_tl_reqs_left
         self.logger.debug(__name__, 'Sleep time {0}'.format(sleep_time))
         return sleep_time
 
