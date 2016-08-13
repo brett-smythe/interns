@@ -189,6 +189,12 @@ class TwitterLimitsTimer(object):
         )
         self.logger.debug(
             __name__,
+            'Twitter timeline sleep between reqs is: {0}'.format(
+                self.sleep_time
+            )
+        )
+        self.logger.debug(
+            __name__,
             'Twitter timeline request reset time is: {0}'.format(
                 rollover_time.isoformat()
             )

@@ -31,8 +31,20 @@ class TwitterJobs(object):
         self.twitterTimedLimits.calculate_limits()
         sleep_secs = self.twitterTimedLimits.sleep_time
         self.last_execution_time = time.time() - sleep_secs
+        self.logger.debug(
+            __name__,
+            'Starting last execution time was: {0}'.format(
+                self.last_execution_time
+            )
+        )
         self.tracked_twitter_users = (
             twitter_utils.get_tracked_twitter_usernames()
+        )
+        self.logger.debug(
+            __name__,
+            'Starting tracked twitter users are: {0}'.format(
+                self.tracked_twitter_users
+            )
         )
         self.twitter_user_index = 0
 
