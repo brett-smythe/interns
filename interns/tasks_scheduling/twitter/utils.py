@@ -1,5 +1,5 @@
 """Utilities for twitter task scheduling"""
-import datetime
+from datetime import datetime, timedelta
 
 from pymemcache.client.base import Client as MemCacheClient
 
@@ -10,7 +10,7 @@ from interns.clients.twitter.client import twitterClient
 from eleanor_client.endpoints import twitter as eleanor_twitter
 
 
-epoch_time = datetime.datetime(1970, 1, 1)
+epoch_time = datetime(1970, 1, 1)
 
 module_logger = utils.get_logger(__name__)
 logger = utils.MultiProcessCheckingLogger(module_logger)
@@ -65,7 +65,7 @@ class TwitterLimits(object):
         )
         if cache_tl_reqs_reset_time:
             self.tl_reqs_reset_time = int(cache_tl_reqs_reset_time)
-            utc_now = datetime.datetime.utcnow()
+            utc_now = datetime.utcnow()
             utc_secs = (utc_now - epoch_time).total_seconds()
             secs_until_reset = self.tl_reqs_reset_time - utc_secs
             if secs_until_reset <= 0:
@@ -117,7 +117,7 @@ class TwitterLimits(object):
         """
         self.update_limits()
         self.logger.debug(__name__, 'Updating sleep time between jobs')
-        utc_now = datetime.datetime.utcnow()
+        utc_now = datetime.utcnow()
         utc_secs = (utc_now - epoch_time).total_seconds()
         self.logger.debug(__name__, 'UTC in seconds {0}'.format(utc_secs))
         secs_until_reset = self.tl_reqs_reset_time - utc_secs
@@ -140,6 +140,65 @@ class TwitterLimits(object):
             sleep_time = secs_until_reset / buffered_tl_reqs_left
         self.logger.debug(__name__, 'Sleep time {0}'.format(sleep_time))
         return sleep_time
+
+
+class TwitterLimitsTimer(object):
+    """Timer class for using the twitter API as either it or the python client
+    in use (python-twitter) is getting mixed results from the API. Either way
+    the limits are know quantities"""
+
+    def __init__(self, multi_proc_logger, start_time=None,
+                 reqs_window_secs=900, number_of_reqs=180):
+        """Takes a start_time (utc datetime object) and uses it as the baseline for
+        calculating number of twitter requests"""
+        if start_time is None:
+            start_time = datetime.utcnow()
+        self.reqs_window_start = start_time
+        self.reqs_window_time = reqs_window_secs
+        self.number_of_reqs_per_window = number_of_reqs
+        self.reqs_left = number_of_reqs
+        self.sleep_time = reqs_window_secs / number_of_reqs
+        self.logger = multi_proc_logger
+
+    def calculate_limits(self):
+        """Calculate limits with current limits data"""
+        rollover_time = self.reqs_window_start + timedelta(
+            seconds=self.reqs_window_time
+        )
+        now = datetime.utcnow()
+        if now > rollover_time:
+            self.reqs_window_start = rollover_time
+            self.reqs_left = self.number_of_reqs_per_window
+
+        time_until_rollover = rollover_time - now
+        if self.reqs_left <= 0:
+            self.sleep_time = time_until_rollover.seconds
+        else:
+            self.sleep_time = time_until_rollover.seconds / self.reqs_left
+        self.logger.debug(
+            __name__,
+            'Total twitter timeline requests allowed is: {0}'.format(
+                self.number_of_reqs_per_window
+            )
+        )
+        self.logger.debug(
+            __name__,
+            'Number of twitter timeline requests left is: {0}'.format(
+                self.reqs_left
+            )
+        )
+        self.logger.debug(
+            __name__,
+            'Twitter timeline request reset time is: {0}'.format(
+                rollover_time.isoformat()
+            )
+        )
+
+    def decrement_api_reqs(self):
+        """Call this method directly before or after making an api request to
+        count the request and calculate the new limits"""
+        self.calculate_limits()
+        self.reqs_left -= 1
 
 
 def get_tracked_twitter_usernames():

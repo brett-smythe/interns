@@ -17,17 +17,19 @@ class TwitterJobs(object):
         self.logger.info(__name__, 'Starting twitter job scheduler')
         self.job_queue = job_queue
         self.running = True
-
-        try:
-            self.twitterLimits = twitter_utils.TwitterLimits(
-                multi_proc_logger=self.logger
-            )
-        except Exception as e:
-            self.logger.error(
-                __name__,
-                'Twitter limits update failed with error: ' + e
-            )
-        sleep_secs = self.twitterLimits.get_sleep_between_jobs()
+#        try:
+#            self.twitterLimits = twitter_utils.TwitterLimits(
+#                multi_proc_logger=self.logger
+#            )
+#        except Exception as e:
+#            self.logger.error(
+#                __name__,
+#                'Twitter limits update failed with error: ' + e
+#            )
+#        sleep_secs = self.twitterLimits.get_sleep_between_jobs()
+        self.twitterTimedLimits = twitter_utils.TwitterLimitsTimer(self.logger)
+        self.twitterTimedLimits.calculate_limits()
+        sleep_secs = self.twitterTimedLimits.sleep_time
         self.last_execution_time = time.time() - sleep_secs
         self.tracked_twitter_users = (
             twitter_utils.get_tracked_twitter_usernames()
@@ -81,6 +83,7 @@ class TwitterJobs(object):
             )
         )
         intern_tasks.get_user_timeline_tweets.delay(username)
+        self.twitterTimedLimits.decrement_api_reqs()
 
     def execute_next_job(self):
         """
@@ -88,8 +91,10 @@ class TwitterJobs(object):
         jobs
         """
         self.logger.debug(__name__, 'Updating twitter API limits')
-        self.twitterLimits.update_limits()
-        sleep_secs = self.twitterLimits.get_sleep_between_jobs()
+        self.twitterTimedLimits.calculate_limits()
+        sleep_secs = self.twitterTimedLimits.sleep_time
+#        self.twitterLimits.update_limits()
+#        sleep_secs = self.twitterLimits.get_sleep_between_jobs()
         self.logger.debug(
             __name__,
             'Updated time to sleep between twitter jobs to {0} seconds'.format(
