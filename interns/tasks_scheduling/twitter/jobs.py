@@ -38,7 +38,7 @@ class TwitterJobs(object):
             )
         )
         self.tracked_twitter_users = (
-            twitter_utils.get_tracked_twitter_usernames()
+            twitter_utils.get_tracked_twitter_usernames(self.logger)
         )
         self.logger.debug(
             __name__,

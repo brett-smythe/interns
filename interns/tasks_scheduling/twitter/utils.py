@@ -207,10 +207,11 @@ class TwitterLimitsTimer(object):
         self.reqs_left -= 1
 
 
-def get_tracked_twitter_usernames():
+def get_tracked_twitter_usernames(mp_logger=None):
     """
     Get the usernames that are being tracked on twitter
     """
-    logger.debug('Getting tracked twitter user names')
+    if mp_logger is not None:
+        mp_logger.debug(__name__, 'Getting tracked twitter user names')
     tracked_twitter_unames = eleanor_twitter.get_tracked_twitter_users()
     return tracked_twitter_unames
