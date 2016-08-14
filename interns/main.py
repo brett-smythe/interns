@@ -44,7 +44,6 @@ class Scheduler(object):
             while self.service_running:
                 # Check to see if the process was killed
                 signal.signal(signal.SIGTERM, self.signal_handler)
-                signal.signal(signal.SIGKILL, self.signal_handler)
                 # Some call to check if the service should keep running
                 workerLogger.write_log_messages()
                 sleep(0.5)
