@@ -116,6 +116,10 @@ class TwitterJobs(object):
         time_to_execute = (
             (time.time() - self.last_execution_time) >= sleep_secs
         )
+        self.logger.debug(
+            __name__,
+            'time_to_execute is currently {0}'.format(time_to_execute)
+        )
         if time_to_execute:
             if self.twitter_user_index >= len(self.tracked_twitter_users):
                 self.twitter_user_index = 0
